@@ -87,29 +87,28 @@ end, false)
 
 
 RegisterCommand('morning', function(source)
-    local ps = source
-    if isAllowedToChange(ps) then
+    if isAllowedToChange(source) then
         Time.h = 9
         Time.m = 0
         TriggerEvent('requestSync')
     end
 end)
 RegisterCommand('noon', function(source)
-    if isAllowedToChange(ps) then
+    if isAllowedToChange(source) then
         Time.h = 12
         Time.m = 0
         TriggerEvent('requestSync')
     end
 end)
 RegisterCommand('evening', function(source)
-    if isAllowedToChange(ps) then
+    if isAllowedToChange(source) then
         Time.h = 18
         Time.m = 0
         TriggerEvent('requestSync')
     end
 end)
 RegisterCommand('night', function(source)
-    if isAllowedToChange(ps) then
+    if isAllowedToChange(source) then
         Time.h = 23
         Time.m = 0
         TriggerEvent('requestSync')
