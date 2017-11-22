@@ -1,6 +1,6 @@
 CurrentWeather = 'EXTRASUNNY'
 Time = {}
-Time.h = 12
+Time.h = 9
 Time.m = 0
 
 
