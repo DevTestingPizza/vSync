@@ -5,18 +5,11 @@ admins = {
     --'license:1234975143578921327',
 }
 
+
+
 --------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
+debugprint = false -- don't touch this unless you know what you're doing or you're being asked by Vespura to turn this on.
+--------------------------------------------------
 
 
 
@@ -207,7 +200,8 @@ function isAllowedToChange(player)
     local allowed = false
     for i,id in ipairs(admins) do
         for x,pid in ipairs(GetPlayerIdentifiers(player)) do
-            if pid == id then
+            if debugprint then print('admin id: ' .. id .. '\nplayer id:' .. pid) end
+            if string.lower(pid) == string.lower(id) then
                 allowed = true
             end
         end
