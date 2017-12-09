@@ -206,6 +206,8 @@ RegisterCommand('time', function(source, args, rawCommand)
                 local newtime = Time.h .. ":"
                 if Time.m < 10 then
                     newtime = newtime .. "0" .. Time.m
+                else
+                    newtime = newtime .. Time.m
                 end
                 TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time has been updated, new time is: ^0' .. newtime .. "^5!" )
                 TriggerEvent('requestSync')
