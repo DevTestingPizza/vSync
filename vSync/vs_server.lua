@@ -37,15 +37,38 @@ AvailableWeatherTypes = {
 }
 CurrentWeather = "EXTRASUNNY"
 Time = {}
-Time.h = 9
+Time.h = 12
 Time.m = 0
-
+local freezeTime = false
 
 
 RegisterServerEvent('requestSync')
 AddEventHandler('requestSync', function()
     TriggerClientEvent('updateWeather', -1, CurrentWeather)
-    TriggerClientEvent('updateTime', -1, Time.h, Time.m)
+    TriggerClientEvent('updateTime', -1, Time.h, Time.m, freezeTime)
+end)
+
+RegisterCommand('freezetime', function(source, args, rawCommand)
+    if source ~= 0 then
+        if isAllowedToChange(source) then
+            freezeTime = not freezeTime
+            if freezeTime then
+                TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time is now frozen.')
+            else
+                TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time is no longer frozen.')
+            end
+        else
+            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1You are not allowed to use this command.')
+        end
+        
+    else
+        freezeTime = not freezeTime
+        if freezeTime then
+            print("Time is now frozen.")
+        else
+            print("Time is no longer frozen.")
+        end
+    end
 end)
 
 RegisterCommand('weather', function(source, args, rawCommand)
@@ -80,7 +103,7 @@ RegisterCommand('weather', function(source, args, rawCommand)
                     end
                 end
                 if validWeatherType then
-                    TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^3Weather has been upated, new weather: ' .. string.lower(args[1]))
+                    TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Weather has been upated, new weather: ^1' .. string.lower(args[1]))
                     CurrentWeather = string.upper(args[1])
                     TriggerEvent('requestSync')
                 else
@@ -97,49 +120,49 @@ end, false)
 
 RegisterCommand('morning', function(source)
     if source == 0 then
-        print("Use the \"/time\" command instead!")
+        print("For console, use the \"/time <hh> <mm>\" command instead!")
         return
     end
     if isAllowedToChange(source) then
         Time.h = 9
         Time.m = 0
-        TriggerClientEvent('chatMessage', source, '', {255,255,255}, 'Time set to morning.')
+        TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time set to morning.')
         TriggerEvent('requestSync')
     end
 end)
 RegisterCommand('noon', function(source)
     if source == 0 then
-        print("Use the \"/time\" command instead!")
+        print("For console, use the \"/time <hh> <mm>\" command instead!")
         return
     end
     if isAllowedToChange(source) then
         Time.h = 12
         Time.m = 0
-        TriggerClientEvent('chatMessage', source, '', {255,255,255}, 'Time set to noon.')
+        TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time set to noon.')
         TriggerEvent('requestSync')
     end
 end)
 RegisterCommand('evening', function(source)
     if source == 0 then
-        print("Use the \"/time\" command instead!")
+        print("For console, use the \"/time <hh> <mm>\" command instead!")
         return
     end
     if isAllowedToChange(source) then
         Time.h = 18
         Time.m = 0
-        TriggerClientEvent('chatMessage', source, '', {255,255,255}, 'Time set to evening.')
+        TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time set to evening.')
         TriggerEvent('requestSync')
     end
 end)
 RegisterCommand('night', function(source)
     if source == 0 then
-        print("Use the \"/time\" command instead!")
+        print("For console, use the \"/time <hh> <mm>\" command instead!")
         return
     end
     if isAllowedToChange(source) then
         Time.h = 23
         Time.m = 0
-        TriggerClientEvent('chatMessage', source, '', {255,255,255}, 'Time set to night.')
+        TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time set to night.')
         TriggerEvent('requestSync')
     end
 end)
@@ -160,8 +183,6 @@ RegisterCommand('time', function(source, args, rawCommand)
             else
                 Time.m = 0
             end
-            -- Time.h = argh
-            -- Time.m = argm
             print("Time has changed to " .. Time.h .. ":" .. Time.m .. ".")
             TriggerEvent('requestSync')
         else
@@ -182,9 +203,11 @@ RegisterCommand('time', function(source, args, rawCommand)
                 else
                     Time.m = 0
                 end
-                -- Time.h = argh
-                -- Time.m = argm
-                TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^2Time has been updated, new time is: ^0' .. Time.h .. ":" .. Time.m .. "^2!" )
+                local newtime = Time.h .. ":"
+                if Time.m < 10 then
+                    newtime = newtime .. "0" .. Time.m
+                end
+                TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^5Time has been updated, new time is: ^0' .. newtime .. "^5!" )
                 TriggerEvent('requestSync')
             else
                 TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Invalid syntax. Use ^0/time <hour> <minute> ^1instead!')
@@ -212,12 +235,14 @@ end
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(2000)
-        Time.m = Time.m + 1
-        if Time.m > 59 then
-            Time.m = 0
-            Time.h = Time.h + 1
-            if Time.h > 23 then
-                Time.h = 0
+        if not freezeTime then
+            Time.m = Time.m + 1
+            if Time.m > 59 then
+                Time.m = 0
+                Time.h = Time.h + 1
+                if Time.h > 23 then
+                    Time.h = 0
+                end
             end
         end
     end
@@ -226,7 +251,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(5000)
-        TriggerClientEvent('updateTime', -1, Time.h, Time.m)
+        TriggerClientEvent('updateTime', -1, Time.h, Time.m, freezeTime)
     end
 end)
 Citizen.CreateThread(function()
