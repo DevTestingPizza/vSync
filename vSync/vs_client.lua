@@ -8,7 +8,6 @@ local blackout = false
 
 RegisterNetEvent('vSync:updateWeather')
 AddEventHandler('vSync:updateWeather', function(NewWeather, newblackout)
-    print("triggered")
     CurrentWeather = NewWeather
     blackout = newblackout
 end)
@@ -22,7 +21,6 @@ Citizen.CreateThread(function()
         end
         Citizen.Wait(100) -- Wait 0 seconds to prevent crashing.
         SetBlackout(blackout)
-        print(tostring(blackout))
         ClearOverrideWeather()
         ClearWeatherTypePersist()
         SetWeatherTypePersist(lastWeather)
