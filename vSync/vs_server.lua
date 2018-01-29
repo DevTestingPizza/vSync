@@ -120,7 +120,7 @@ RegisterCommand('weather', function(source, args)
                 end
             end
             if validWeatherType then
-                print("Weather has been upated.")
+                print("Weather has been updated.")
                 CurrentWeather = string.upper(args[1])
                 newWeatherTimer = 10
                 TriggerEvent('vSync:requestSync')
