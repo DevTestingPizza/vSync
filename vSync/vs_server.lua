@@ -258,7 +258,7 @@ RegisterCommand('time', function(source, args, rawCommand)
                 local argh = tonumber(args[1])
                 local argm = tonumber(args[2])
                 if argh < 24 then
-					ShiftToHour(argh)
+                    ShiftToHour(argh)
                 else
                     ShiftToHour(0)
                 end
