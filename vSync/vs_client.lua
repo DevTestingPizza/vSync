@@ -49,8 +49,8 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
         local newBaseTime = baseTime
-        if GetGameTimer() - 2000  > timer then
-            newBaseTime = newBaseTime + 1
+        if GetGameTimer() - 500  > timer then
+            newBaseTime = newBaseTime + 0.25
             timer = GetGameTimer()
         end
         if freezeTime then
@@ -59,7 +59,7 @@ Citizen.CreateThread(function()
         baseTime = newBaseTime
         hour = math.floor(((baseTime+timeOffset)/60)%24)
         minute = math.floor((baseTime+timeOffset)%60)
-        NetworkOverrideClockTime( hour, minute, 0)
+        NetworkOverrideClockTime(hour, minute, 0)
     end
 end)
 
