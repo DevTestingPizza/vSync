@@ -46,7 +46,7 @@ local newWeatherTimer = 10
 RegisterServerEvent('vSync:requestSync')
 AddEventHandler('vSync:requestSync', function()
     TriggerClientEvent('vSync:updateWeather', -1, CurrentWeather, blackout)
-    TriggerClientEvent('vSync:updateTime', -1, timeOffset, freezeTime)
+    TriggerClientEvent('vSync:updateTime', -1, baseTime, timeOffset, freezeTime)
 end)
 
 function isAllowedToChange(player)
@@ -289,7 +289,7 @@ end)
 Citizen.CreateThread(function()
     while true do
 		Citizen.Wait(0)
-		local newBaseTime = os.time(os.date("!*t"))/2
+		local newBaseTime = os.time(os.date("!*t"))/2 + 360
 		if freezeTime then
 			timeOffset = timeOffset + baseTime - newBaseTime			
 		end
@@ -300,7 +300,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(5000)
-        TriggerClientEvent('vSync:updateTime', -1, timeOffset, freezeTime)
+        TriggerClientEvent('vSync:updateTime', -1, baseTime, timeOffset, freezeTime)
     end
 end)
 

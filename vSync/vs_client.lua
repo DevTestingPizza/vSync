@@ -2,6 +2,7 @@ CurrentWeather = 'EXTRASUNNY'
 local lastWeather = CurrentWeather
 local baseTime = 0
 local timeOffset = 0
+local timer = 0
 local freezeTime = false
 local blackout = false
 
@@ -36,20 +37,29 @@ Citizen.CreateThread(function()
 end)
 
 RegisterNetEvent('vSync:updateTime')
-AddEventHandler('vSync:updateTime', function(offset, freeze)
+AddEventHandler('vSync:updateTime', function(base, offset, freeze)
     freezeTime = freeze
     timeOffset = offset
+	baseTime = base
 end)
 
 Citizen.CreateThread(function()
+	local hour = 0
+	local minute = 0
     while true do
 		Citizen.Wait(0)
-		local newBaseTime = os.time(os.date("!*t"))/2
+		local newBaseTime = baseTime
+		if GetGameTimer() - 2000  > timer then
+			newBaseTime = newBaseTime + 1
+			timer = GetGameTimer()
+		end
 		if freezeTime then
 			timeOffset = timeOffset + baseTime - newBaseTime			
 		end
 		baseTime = newBaseTime
-		NetworkOverrideClockTime(((baseTime+timeOffset)/60)%24, (baseTime+timeOffset)%60 , 0)
+		hour = math.floor(((baseTime+timeOffset)/60)%24)
+		minute = math.floor((baseTime+timeOffset)%60)
+		NetworkOverrideClockTime( hour, minute, 0)
     end
 end)
 
