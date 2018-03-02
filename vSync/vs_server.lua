@@ -181,8 +181,8 @@ RegisterCommand('morning', function(source)
         return
     end
     if isAllowedToChange(source) then
-		ShiftToMinute(0)
-		ShiftToHour(9)
+        ShiftToMinute(0)
+        ShiftToHour(9)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~morning~s~.')
         TriggerEvent('vSync:requestSync')
     end
@@ -194,7 +194,7 @@ RegisterCommand('noon', function(source)
     end
     if isAllowedToChange(source) then
         ShiftToMinute(0)
-		ShiftToHour(12)
+        ShiftToHour(12)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~noon~s~.')
         TriggerEvent('vSync:requestSync')
     end
@@ -206,7 +206,7 @@ RegisterCommand('evening', function(source)
     end
     if isAllowedToChange(source) then
         ShiftToMinute(0)
-		ShiftToHour(18)
+        ShiftToHour(18)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~evening~s~.')
         TriggerEvent('vSync:requestSync')
     end
@@ -218,18 +218,18 @@ RegisterCommand('night', function(source)
     end
     if isAllowedToChange(source) then
         ShiftToMinute(0)
-		ShiftToHour(23)
+        ShiftToHour(23)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~night~s~.')
         TriggerEvent('vSync:requestSync')
     end
 end)
 
 function ShiftToMinute(minute)
-	timeOffset = timeOffset - ( ( (baseTime+timeOffset) % 60 ) - minute ) * 60
+    timeOffset = timeOffset - ( ( (baseTime+timeOffset) % 60 ) - minute )
 end
 
 function ShiftToHour(hour)
-	timeOffset = timeOffset - ( ( ((baseTime+timeOffset)/60) % 24 ) - hour ) * 60
+    timeOffset = timeOffset - ( ( ((baseTime+timeOffset)/60) % 24 ) - hour ) * 60
 end
 
 RegisterCommand('time', function(source, args, rawCommand)
@@ -267,8 +267,8 @@ RegisterCommand('time', function(source, args, rawCommand)
                 else
                     ShiftToMinute(0)
                 end
-                local newtime = ((baseTime+timeOffset)/60)%24 .. ":"
-				local minute = (baseTime+timeOffset)%60
+                local newtime = math.floor(((baseTime+timeOffset)/60)%24) .. ":"
+				local minute = math.floor((baseTime+timeOffset)%60)
                 if minute < 10 then
                     newtime = newtime .. "0" .. minute
                 else
@@ -288,12 +288,12 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-		Citizen.Wait(0)
-		local newBaseTime = os.time(os.date("!*t"))/2 + 360
-		if freezeTime then
-			timeOffset = timeOffset + baseTime - newBaseTime			
-		end
-		baseTime = newBaseTime
+        Citizen.Wait(0)
+        local newBaseTime = os.time(os.date("!*t"))/2 + 360
+        if freezeTime then
+            timeOffset = timeOffset + baseTime - newBaseTime			
+        end
+        baseTime = newBaseTime
     end
 end)
 
