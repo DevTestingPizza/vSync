@@ -37,9 +37,8 @@ AvailableWeatherTypes = {
     'HALLOWEEN',
 }
 CurrentWeather = "EXTRASUNNY"
-Time = {}
-Time.h = 12
-Time.m = 0
+local baseTime = 0
+local timeOffset = 0
 local freezeTime = false
 local blackout = false
 local newWeatherTimer = 10
@@ -47,7 +46,7 @@ local newWeatherTimer = 10
 RegisterServerEvent('vSync:requestSync')
 AddEventHandler('vSync:requestSync', function()
     TriggerClientEvent('vSync:updateWeather', -1, CurrentWeather, blackout)
-    TriggerClientEvent('vSync:updateTime', -1, Time.h, Time.m, freezeTime)
+    TriggerClientEvent('vSync:updateTime', -1, baseTime, timeOffset, freezeTime)
 end)
 
 function isAllowedToChange(player)
@@ -182,8 +181,8 @@ RegisterCommand('morning', function(source)
         return
     end
     if isAllowedToChange(source) then
-        Time.h = 9
-        Time.m = 0
+        ShiftToMinute(0)
+        ShiftToHour(9)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~morning~s~.')
         TriggerEvent('vSync:requestSync')
     end
@@ -194,8 +193,8 @@ RegisterCommand('noon', function(source)
         return
     end
     if isAllowedToChange(source) then
-        Time.h = 12
-        Time.m = 0
+        ShiftToMinute(0)
+        ShiftToHour(12)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~noon~s~.')
         TriggerEvent('vSync:requestSync')
     end
@@ -206,8 +205,8 @@ RegisterCommand('evening', function(source)
         return
     end
     if isAllowedToChange(source) then
-        Time.h = 18
-        Time.m = 0
+        ShiftToMinute(0)
+        ShiftToHour(18)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~evening~s~.')
         TriggerEvent('vSync:requestSync')
     end
@@ -218,13 +217,20 @@ RegisterCommand('night', function(source)
         return
     end
     if isAllowedToChange(source) then
-        Time.h = 23
-        Time.m = 0
+        ShiftToMinute(0)
+        ShiftToHour(23)
         TriggerClientEvent('vSync:notify', source, 'Time set to ~y~night~s~.')
         TriggerEvent('vSync:requestSync')
     end
 end)
 
+function ShiftToMinute(minute)
+    timeOffset = timeOffset - ( ( (baseTime+timeOffset) % 60 ) - minute )
+end
+
+function ShiftToHour(hour)
+    timeOffset = timeOffset - ( ( ((baseTime+timeOffset)/60) % 24 ) - hour ) * 60
+end
 
 RegisterCommand('time', function(source, args, rawCommand)
     if source == 0 then
@@ -232,16 +238,16 @@ RegisterCommand('time', function(source, args, rawCommand)
             local argh = tonumber(args[1])
             local argm = tonumber(args[2])
             if argh < 24 then
-                Time.h = argh
+                ShiftToHour(argh)
             else
-                Time.h = 0
+                ShiftToHour(0)
             end
             if argm < 60 then
-                Time.m = argm
+                ShiftToMinute(argm)
             else
-                Time.m = 0
+                ShiftToMinute(0)
             end
-            print("Time has changed to " .. Time.h .. ":" .. Time.m .. ".")
+            print("Time has changed to " .. argh .. ":" .. argm .. ".")
             TriggerEvent('vSync:requestSync')
         else
             print("Invalid syntax, correct syntax is: time <hour> <minute> !")
@@ -252,20 +258,21 @@ RegisterCommand('time', function(source, args, rawCommand)
                 local argh = tonumber(args[1])
                 local argm = tonumber(args[2])
                 if argh < 24 then
-                    Time.h = argh
+                    ShiftToHour(argh)
                 else
-                    Time.h = 0
+                    ShiftToHour(0)
                 end
                 if argm < 60 then
-                    Time.m = argm
+                    ShiftToMinute(argm)
                 else
-                    Time.m = 0
+                    ShiftToMinute(0)
                 end
-                local newtime = Time.h .. ":"
-                if Time.m < 10 then
-                    newtime = newtime .. "0" .. Time.m
+                local newtime = math.floor(((baseTime+timeOffset)/60)%24) .. ":"
+				local minute = math.floor((baseTime+timeOffset)%60)
+                if minute < 10 then
+                    newtime = newtime .. "0" .. minute
                 else
-                    newtime = newtime .. Time.m
+                    newtime = newtime .. minute
                 end
                 TriggerClientEvent('vSync:notify', source, 'Time was changed to: ~y~' .. newtime .. "~s~!")
                 TriggerEvent('vSync:requestSync')
@@ -281,24 +288,19 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(2000)
-        if not freezeTime then
-            Time.m = Time.m + 1
-            if Time.m > 59 then
-                Time.m = 0
-                Time.h = Time.h + 1
-                if Time.h > 23 then
-                    Time.h = 0
-                end
-            end
+        Citizen.Wait(0)
+        local newBaseTime = os.time(os.date("!*t"))/2 + 360
+        if freezeTime then
+            timeOffset = timeOffset + baseTime - newBaseTime			
         end
+        baseTime = newBaseTime
     end
 end)
 
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(5000)
-        TriggerClientEvent('vSync:updateTime', -1, Time.h, Time.m, freezeTime)
+        TriggerClientEvent('vSync:updateTime', -1, baseTime, timeOffset, freezeTime)
     end
 end)
 
